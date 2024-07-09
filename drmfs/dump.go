@@ -123,11 +123,11 @@ func (state *dumpState) dumpFile(node *avsproperty.Node, realPath string) error 
 }
 
 func (state *dumpState) openKeyring(ks keyring.KeySource) error {
-	b, err := state.readFile("keyring.dat")
+	rd, err := state.readFile("keyring.dat", -1)
 	if err != nil {
 		return err
 	}
-	kr, err := keyring.New(b, ks)
+	kr, err := keyring.New(rd, ks)
 	if err != nil {
 		return err
 	}
@@ -137,11 +137,7 @@ func (state *dumpState) openKeyring(ks keyring.KeySource) error {
 }
 
 func (state *dumpState) openFileList() (*avsproperty.Node, error) {
-	b, err := state.readFile("file.inf")
-	if err != nil {
-		return nil, err
-	}
-	rd, err := state.keyring.MakeReader(b, 0)
+	rd, err := state.readFile("file.inf", 0)
 	if err != nil {
 		return nil, err
 	}
@@ -157,11 +153,25 @@ func (state *dumpState) openFileList() (*avsproperty.Node, error) {
 	return root, nil
 }
 
-func (state *dumpState) readFile(filename string) (*bytes.Reader, error) {
-	b, err := os.ReadFile(path.Join(state.root, state.obfuscator.Obfuscate(filename)))
+func (state *dumpState) readFile(filename string, key int64) (*bytes.Reader, error) {
+	f, err := os.Open(path.Join(state.root, state.obfuscator.Obfuscate(filename)))
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
+
+	rd := io.Reader(f)
+	if key >= 0 {
+		rd, err = state.keyring.MakeReader(f, 0)
+		if err != nil {
+			return nil, err
+		}
+	}
+	b, err := io.ReadAll(rd)
+	if err != nil {
+		return nil, err
+	}
+
 	state.ch <- DrmFile{
 		Reader: bytes.NewReader(b),
 		Closer: io.NopCloser(nil),
