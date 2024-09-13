@@ -9,11 +9,16 @@ import (
 	"debug/pe"
 	"encoding"
 	"encoding/binary"
-	"errors"
 	"io"
 	"strconv"
 	"unsafe"
 )
+
+type obfuscateError string
+
+func (e obfuscateError) Error() string {
+	return "eapki/obfuscate: " + string(e)
+}
 
 type Obfuscator []byte
 
@@ -65,7 +70,7 @@ func (o Obfuscator) Deobfuscate(wr io.Writer, rd io.Reader) error {
 		return err
 	}
 	if i := header[0]; i != 0 {
-		return errors.New("eapki/obfuscate: invalid magic number in header: " + strconv.Itoa(int(i)) + " != 0")
+		return obfuscateError("invalid magic number in header: " + strconv.Itoa(int(i)) + " != 0")
 	}
 
 	_, err := io.Copy(wr, cipher.StreamReader{
