@@ -5,8 +5,8 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/binary"
-	"fmt"
 	"io"
+	"log"
 	"os"
 	"runtime"
 
@@ -144,18 +144,18 @@ func (dongle *Dongle) find() error {
 	}
 
 	for _, slot := range slots {
-		fmt.Println("opening session on slot", slot)
+		log.Println("opening session on slot", slot)
 
 		if dongle.sh, err = dongle.ctx.OpenSession(slot, pkcs11.CKF_SERIAL_SESSION); err != nil {
 			return err
 		}
 		if err := dongle.initSession(slot); err != nil {
 			dongle.ctx.CloseSession(dongle.sh)
-			fmt.Println(err)
+			log.Println(err)
 			continue
 		}
 
-		fmt.Println("initialized dongle:", dongle.cert.Subject.CommonName)
+		log.Println("initialized dongle:", dongle.cert.Subject.CommonName)
 		return nil
 	}
 	return dongleError("dongle not found")
@@ -188,7 +188,7 @@ func (dongle *Dongle) login(slot uint) error {
 		if err := dongle.ctx.Login(dongle.sh, pkcs11.CKU_USER, string(pg.Generate())); err == nil {
 			return nil
 		} else {
-			fmt.Printf("login attempt failed (%d/%d)\n", i+1, NumberOfPins)
+			log.Printf("login attempt failed (%d/%d)\n", i+1, NumberOfPins)
 		}
 	}
 	return dongleError("all login attempts failed")

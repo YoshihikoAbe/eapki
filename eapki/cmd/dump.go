@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
+	"log"
 	"os"
 	"path"
 	"runtime"
@@ -52,13 +52,13 @@ func runDump(cmd *cobra.Command, args []string) {
 
 	ks, err := getKeySource(keyFile)
 	if err != nil {
-		fatal("failed to initialize key source:", err)
+		log.Fatalln("failed to initialize key source:", err)
 	}
 
 	start := time.Now()
 	ch, err := drmfs.Dump(src, ks)
 	if err != nil {
-		fatal(err)
+		log.Fatalln(err)
 	}
 
 	wg := sync.WaitGroup{}
@@ -77,26 +77,26 @@ func runDump(cmd *cobra.Command, args []string) {
 
 					dir, _ := path.Split(file.Path)
 					if err := os.MkdirAll(path.Join(dest, dir), 0777); err != nil {
-						fmt.Println(err)
+						log.Println(err)
 						return
 					}
 
 					out, err := os.Create(path.Join(dest, file.Path))
 					if err != nil {
-						fmt.Println(err)
+						log.Println(err)
 						return
 					}
 					defer out.Close()
 
 					if _, err := io.Copy(out, file); err != nil {
-						fmt.Println(err)
+						log.Println(err)
 					}
 				}(file)
 			}
 		}()
 	}
 	wg.Wait()
-	fmt.Println("time elapsed:", time.Since(start))
+	log.Println("time elapsed:", time.Since(start))
 }
 
 func getKeySource(keyFile string) (keyring.KeySource, error) {

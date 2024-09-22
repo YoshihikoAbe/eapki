@@ -2,8 +2,8 @@ package drmfs
 
 import (
 	"bytes"
-	"fmt"
 	"io"
+	"log"
 	"os"
 	"path"
 
@@ -65,7 +65,7 @@ func (state *dumpState) dump(node *avsproperty.Node, current string) {
 	for _, child := range node.Children() {
 		filename := child.AttributeValueNodeName(nameNodeName)
 		if len(filename) == 0 {
-			fmt.Println("name attribute not found")
+			log.Println("name attribute not found")
 			continue
 		}
 
@@ -74,10 +74,10 @@ func (state *dumpState) dump(node *avsproperty.Node, current string) {
 			state.dump(child, path.Join(current, filename))
 		} else if entry.Equals(fileNodeName) {
 			if err := state.dumpFile(child, path.Join(current, filename)); err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			}
 		} else {
-			fmt.Println(filename+":", "invalid file type:", entry)
+			log.Println(filename+":", "invalid file type:", entry)
 		}
 	}
 }
@@ -99,7 +99,7 @@ func (state *dumpState) dumpFile(node *avsproperty.Node, realPath string) error 
 	}
 	file, err := os.Open(path.Join(state.root, inPath))
 	if err != nil {
-		fmt.Println(realPath+":", err)
+		log.Println(realPath+":", err)
 		return nil
 	}
 
