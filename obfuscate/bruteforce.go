@@ -40,6 +40,8 @@ func Bruteforce(in []byte) ([]byte, error) {
 			return nil, err
 		}
 		switch string(buf.Bytes()[:4]) {
+		case "\xef\xbb\xbf<":
+			fallthrough
 		case "<?xm":
 			fallthrough
 		case "<!--":
