@@ -99,7 +99,7 @@ func (state *dumpState) dumpFile(node *avsproperty.Node, realPath string) error 
 	}
 	file, err := os.Open(path.Join(state.root, inPath))
 	if err != nil {
-		log.Println(realPath+":", err)
+		// log.Println(realPath+":", err)
 		return nil
 	}
 

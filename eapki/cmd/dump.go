@@ -77,19 +77,19 @@ func runDump(cmd *cobra.Command, args []string) {
 
 					dir, _ := path.Split(file.Path)
 					if err := os.MkdirAll(path.Join(dest, dir), 0777); err != nil {
-						log.Println(err)
+						log.Fatalln(err)
 						return
 					}
 
 					out, err := os.Create(path.Join(dest, file.Path))
 					if err != nil {
-						log.Println(err)
+						log.Fatalln(err)
 						return
 					}
 					defer out.Close()
 
 					if _, err := io.Copy(out, file); err != nil {
-						log.Println(err)
+						log.Fatalln(err)
 					}
 				}(file)
 			}
