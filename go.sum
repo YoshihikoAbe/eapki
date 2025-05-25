@@ -1,5 +1,7 @@
 github.com/YoshihikoAbe/avsproperty v0.0.1 h1:EhaxmJoVHY0iXmOOSYC2g8PdlMJ60UOF9DpTqE4g9xo=
 github.com/YoshihikoAbe/avsproperty v0.0.1/go.mod h1:QnubObUKj734sRrFtaFzp9Zrk3LKLJHp3+iqIMhqdXM=
+github.com/YoshihikoAbe/fsdump v0.0.1 h1:y8puE1fwGisIU2mPUyrkwOC3HlYvhRCsIWDlWCRkKBY=
+github.com/YoshihikoAbe/fsdump v0.0.1/go.mod h1:aXvDhFrth+5KPfxZM7xMZ10fPS61fKkeL1Uc1Ui1f2M=
 github.com/cpuguy83/go-md2man/v2 v2.0.4/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=

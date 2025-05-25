@@ -9,6 +9,7 @@ import (
 
 	"github.com/YoshihikoAbe/avsproperty"
 	"github.com/YoshihikoAbe/eapki/keyring"
+	"github.com/YoshihikoAbe/fsdump"
 )
 
 var (
@@ -26,16 +27,10 @@ func (err drmError) Error() string {
 	return "eapki/drmfs: " + string(err)
 }
 
-type DrmFile struct {
-	io.Reader
-	io.Closer
-	Path string
-}
-
-func Dump(root string, ks keyring.KeySource) (chan DrmFile, error) {
+func Dump(root string, ks keyring.KeySource) (chan fsdump.File, error) {
 	state := &dumpState{
 		root: root,
-		ch:   make(chan DrmFile, 2),
+		ch:   make(chan fsdump.File, 2),
 	}
 	state.obfuscator.Init(ks.ContentsCode())
 
@@ -58,7 +53,7 @@ type dumpState struct {
 	obfuscator PathObfuscator
 	keyring    *keyring.Keyring
 	root       string
-	ch         chan DrmFile
+	ch         chan fsdump.File
 }
 
 func (state *dumpState) dump(node *avsproperty.Node, current string) {
@@ -114,7 +109,7 @@ func (state *dumpState) dumpFile(node *avsproperty.Node, realPath string) error 
 		}
 	}
 
-	state.ch <- DrmFile{
+	state.ch <- fsdump.File{
 		Reader: rd,
 		Closer: file,
 		Path:   realPath,
@@ -172,7 +167,7 @@ func (state *dumpState) readFile(filename string, key int64) (*bytes.Reader, err
 		return nil, err
 	}
 
-	state.ch <- DrmFile{
+	state.ch <- fsdump.File{
 		Reader: bytes.NewReader(b),
 		Closer: io.NopCloser(nil),
 		Path:   filename,

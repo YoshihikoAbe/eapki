@@ -2,17 +2,14 @@ package cmd
 
 import (
 	"encoding/json"
-	"io"
 	"log"
 	"os"
-	"path"
-	"runtime"
-	"sync"
 	"time"
 
 	"github.com/YoshihikoAbe/eapki/dongle"
 	"github.com/YoshihikoAbe/eapki/drmfs"
 	"github.com/YoshihikoAbe/eapki/keyring"
+	"github.com/YoshihikoAbe/fsdump"
 	"github.com/spf13/cobra"
 )
 
@@ -46,9 +43,6 @@ func runDump(cmd *cobra.Command, args []string) {
 	dest := args[1]
 	keyFile, _ := cmd.Flags().GetString("key")
 	workers, _ := cmd.Flags().GetInt("workers")
-	if workers < 1 {
-		workers = runtime.NumCPU()
-	}
 
 	ks, err := getKeySource(keyFile)
 	if err != nil {
@@ -56,46 +50,19 @@ func runDump(cmd *cobra.Command, args []string) {
 	}
 
 	start := time.Now()
+
 	ch, err := drmfs.Dump(src, ks)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	wg := sync.WaitGroup{}
-	wg.Add(workers)
-	for i := 0; i < workers; i++ {
-		go func() {
-			for {
-				file, ok := <-ch
-				if !ok {
-					wg.Done()
-					return
-				}
-
-				func(file drmfs.DrmFile) {
-					defer file.Close()
-
-					dir, _ := path.Split(file.Path)
-					if err := os.MkdirAll(path.Join(dest, dir), 0777); err != nil {
-						log.Fatalln(err)
-						return
-					}
-
-					out, err := os.Create(path.Join(dest, file.Path))
-					if err != nil {
-						log.Fatalln(err)
-						return
-					}
-					defer out.Close()
-
-					if _, err := io.Copy(out, file); err != nil {
-						log.Fatalln(err)
-					}
-				}(file)
-			}
-		}()
+	dumper := fsdump.Dumper{
+		Src:        &fsdump.ChannelFileSource{Chan: ch},
+		Dest:       dest,
+		NumWorkers: workers,
 	}
-	wg.Wait()
+	dumper.Run()
+
 	log.Println("time elapsed:", time.Since(start))
 }
 

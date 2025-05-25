@@ -1,9 +1,10 @@
 module github.com/YoshihikoAbe/eapki
 
-go 1.22.3
+go 1.24.2
 
 require (
 	github.com/YoshihikoAbe/avsproperty v0.0.1
+	github.com/YoshihikoAbe/fsdump v0.0.1
 	github.com/miekg/pkcs11 v1.1.1
 	github.com/spf13/cobra v1.8.1
 )
